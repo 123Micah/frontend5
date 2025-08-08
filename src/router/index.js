@@ -23,7 +23,8 @@ const routes = [
   { path: '/admin/login', name: 'AdminLogin', component: AdminLogin },
   { path: '/admin/dashboard', name: 'AdminDashboard', component: AdminDashboard },
   { path: '/admin/create-test', name: 'CreateTest', component: CreateTest },
-  { path: '/admin/test/:id', name: 'Testlist', component: Testlist, props: true },
+  { path: '/admin/tests', name: 'Testlist', component: Testlist, props: true },
+  { path: '/admin/tests/:id', name: 'AdminTestView', component: () => import('../pages/admin/AdminTestView.vue'), props: true },
   { path: '/admin/submissions', name: 'Submissions', component: Submissions },
 
   // Student

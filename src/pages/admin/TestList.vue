@@ -55,7 +55,7 @@
 
           <div class="flex items-center gap-3">
             <RouterLink
-              :to="`/admin/test/${test._id}`"
+              :to="`/admin/tests/${test._id}`"
               class="flex items-center gap-1 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -106,7 +106,7 @@ const tests = ref([]);
 
 const fetchTests = async () => {
   try {
-    const { data } =await API.get(`/tests/${route.params.id}`);
+    const { data } = await API.get('/admin/tests');
     tests.value = data;
   } catch (err) {
     console.error(err);
@@ -115,12 +115,22 @@ const fetchTests = async () => {
 
 const deleteTest = async (id) => {
   if (!confirm('Are you sure you want to delete this test? This action cannot be undone.')) return;
-
   try {
-    await API.delete(`/tests/${id}`);
+    await API.delete(`/admin/tests/${id}`);
     tests.value = tests.value.filter((t) => t._id !== id);
   } catch (err) {
     alert('Failed to delete test. Please try again.');
+    console.error(err);
+  }
+};
+// Edit test functionality (example: update title)
+const editTest = async (id, update) => {
+  try {
+    const { data } = await API.put(`/admin/tests/${id}`, update);
+    const idx = tests.value.findIndex(t => t._id === id);
+    if (idx !== -1) tests.value[idx] = data;
+  } catch (err) {
+    alert('Failed to edit test. Please try again.');
     console.error(err);
   }
 };
