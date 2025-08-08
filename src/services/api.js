@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'https://backend5-2jm8.onrender.com/api',
+    baseURL: 'http://localhost:5000/api',
+  // baseURL: 'https://backend5-2jm8.onrender.com/api',
 });
 
 // Attach token automatically

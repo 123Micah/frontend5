@@ -48,7 +48,7 @@
 
         <!-- View Tests Card -->
         <router-link
-          to="/admin/tests"
+          to="/admin/test/:id"
           class="group relative overflow-hidden bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-green-100"
         >
           <div class="p-6 flex flex-col items-center">

@@ -5,7 +5,7 @@ import Home from '../pages/Home.vue';
 import AdminLogin from '../pages/admin/Login.vue';
 import AdminDashboard from '../pages/admin/Dashboard.vue';
 import CreateTest from '../pages/admin/CreateTest.vue';
-
+import Testlist from '../pages/admin/Testlist.vue';
 import Submissions from '../pages/admin/Submissions.vue';
 
 import StudentRegister from '../pages/student/Register.vue';
@@ -23,8 +23,8 @@ const routes = [
   { path: '/admin/login', name: 'AdminLogin', component: AdminLogin },
   { path: '/admin/dashboard', name: 'AdminDashboard', component: AdminDashboard },
   { path: '/admin/create-test', name: 'CreateTest', component: CreateTest },
-  
-  { path: '/admin/test/:id/submissions', name: 'Submissions', component: Submissions, props: true },
+  { path: '/admin/test/:id', name: 'Testlist', component: Testlist, props: true },
+  { path: '/admin/submissions', name: 'Submissions', component: Submissions },
 
   // Student
   { path: '/student/register', name: 'StudentRegister', component: StudentRegister },

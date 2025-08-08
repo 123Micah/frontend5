@@ -70,11 +70,8 @@
                   <label
                     v-for="(option, i) in question.options"
                     :key="i"
-                    class="flex items-center space-x-4 p-4 rounded-lg border border-gray-200 hover:border-blue-300 transition-all cursor-pointer group"
-                    :class="{ 
-                      'border-blue-400 bg-blue-50': answers[index] === option,
-                      'hover:shadow-sm': answers[index] !== option
-                    }"
+                    class="flex items-center space-x-4 p-4 rounded-lg border border-gray-200 transition-all cursor-pointer group"
+                    :class="optionClass(index, option)"
                   >
                     <div class="flex items-center h-5">
                       <input
@@ -84,6 +81,7 @@
                         v-model="answers[index]"
                         class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300"
                         required
+                        :disabled="score !== null"
                       />
                     </div>
                     <span class="text-gray-700 group-hover:text-gray-900">{{ option }}</span>
@@ -96,7 +94,7 @@
 
         <div class="flex justify-center mt-10">
           <button
-            type="submit"
+
             class="relative group flex items-center space-x-3 bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-4 rounded-lg hover:from-green-600 hover:to-blue-600 transition-all shadow-md hover:shadow-lg"
           >
             <div class="absolute -inset-1 bg-gradient-to-r from-green-400 to-blue-400 rounded-lg blur opacity-0 group-hover:opacity-75 transition duration-200"></div>
@@ -115,6 +113,13 @@
         <div class="text-center space-y-4">
           <div class="inline-flex items-center justify-center bg-gradient-to-br from-green-100 to-blue-100 text-green-800 rounded-full p-4 mb-4 shadow-inner">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    // Store correct answers for feedback
+    if (data.correctAnswers) {
+      correctAnswers.value = data.correctAnswers;
+    } else if (test.value.questions.every(q => q.correctOption)) {
+      // fallback: use correctOption from test if available
+      correctAnswers.value = test.value.questions.map(q => q.correctOption);
+    }
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
@@ -128,6 +133,34 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md mx-auto mt-6">
             <div class="bg-white p-4 rounded-lg border border-green-100 shadow-sm">
               <div class="text-green-600 font-medium">✅ Correct</div>
+
+// Store correct answers for feedback
+const correctAnswers = ref([])
+
+function optionClass(qIdx, option) {
+  if (score.value === null) {
+    // Not submitted yet
+    return {
+      'border-blue-400 bg-blue-50': answers[qIdx] === option,
+      'hover:shadow-sm': answers[qIdx] !== option
+    }
+  }
+  // After submission, show green for correct, red for wrong selected
+  const isSelected = answers[qIdx] === option;
+  const isCorrect = correctAnswers.value.length > 0
+    ? correctAnswers.value[qIdx] === option
+    : (test.value.questions[qIdx].correctOption === option);
+  if (isSelected && isCorrect) {
+    return 'border-green-500 bg-green-50';
+  }
+  if (isSelected && !isCorrect) {
+    return 'border-red-500 bg-red-50';
+  }
+  if (!isSelected && isCorrect) {
+    return 'border-green-200';
+  }
+  return '';
+}
               <div class="text-2xl font-bold text-gray-800">{{ correctCount }}</div>
             </div>
             <div class="bg-white p-4 rounded-lg border border-red-100 shadow-sm">
@@ -237,4 +270,5 @@ const handleSubmit = async (auto = false) => {
     console.error('Submission failed:', err);
   }
 };
-</script>
+</script> 
+   
