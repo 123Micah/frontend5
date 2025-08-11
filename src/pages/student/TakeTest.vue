@@ -262,9 +262,9 @@ const handleSubmit = async (auto = false) => {
       timerInterval = null
     }
     if (auto) {
-      submitMessage.value = '⏰ Time out! Your test was submitted automatically.'
+      submitMessage.value = '✅ Submitted successfully! Your results are ready .'
     } else {
-      submitMessage.value = '✅ Submitted successfully! Your results are ready.'
+      submitMessage.value = '⏰ Time out! Your test was submitted automatically.'
     }
   } catch (err) {
     console.error('Submission failed:', err);

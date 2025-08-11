@@ -5,7 +5,7 @@ import Home from '../pages/Home.vue';
 import AdminLogin from '../pages/admin/Login.vue';
 import AdminDashboard from '../pages/admin/Dashboard.vue';
 import CreateTest from '../pages/admin/CreateTest.vue';
-import Testlist from '../pages/admin/Testlist.vue';
+import Testlist from '../pages/admin/TestList.vue';
 import Submissions from '../pages/admin/Submissions.vue';
 
 import StudentRegister from '../pages/student/Register.vue';
