@@ -1,4 +1,5 @@
 <template>
+  <AdminNavbar />
   <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
     <div class="text-center mb-10">
       <h1 class="text-3xl font-bold  bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent inline-block">
@@ -180,6 +181,7 @@
 <script setup>
 import { ref } from 'vue';
 import API from '../../services/api';
+import AdminNavbar from '../../components/AdminNavbar.vue';
 
 const title = ref('');
 const duration = ref({ hours: 0, minutes: 30, seconds: 0 });

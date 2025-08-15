@@ -1,4 +1,5 @@
 <template>
+  <AdminNavbar />
   <div class="max-w-4xl mx-auto py-8 px-4">
     <div v-if="loading" class="text-center py-16">
       <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mx-auto"></div>
@@ -48,6 +49,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import API from '../../services/api';
+import AdminNavbar from '../../components/AdminNavbar.vue';
 
 const route = useRoute();
 const test = ref(null);

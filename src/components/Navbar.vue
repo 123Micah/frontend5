@@ -4,7 +4,7 @@
       to="/" 
       class="text-2xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent transition-all hover:scale-105"
     >
-      ExamPortal
+     student ExamPortal
     </router-link>
 
     <div class="flex items-center space-x-6">
@@ -75,6 +75,6 @@ const isAdmin = computed(() => user && user.role === 'admin');
 const logout = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
-  router.push('/');
+  router.push('/student/login');
 };
 </script>

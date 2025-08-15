@@ -13,6 +13,7 @@ const submitMessage = ref('')
 const loading = ref(true)
 const timeLeft = ref(null)
 const correctAnswers = ref([])
+const showMessage = ref(false)
 let timerInterval = null
 
 const formattedTime = computed(() => {
@@ -78,6 +79,7 @@ onMounted(async () => {
   } catch (err) {
     console.error('Error loading test:', err)
     submitMessage.value = 'Failed to load test. Please try again.'
+    showMessage.value = true
   } finally {
     loading.value = false
   }
@@ -115,9 +117,11 @@ const handleSubmit = async (auto = false) => {
     submitMessage.value = auto 
       ? '⏰ Time out! Your test was submitted automatically.'
       : '✅ Submitted successfully! Your results are ready.'
+    showMessage.value = true
   } catch (err) {
     console.error('Submission failed:', err)
     submitMessage.value = 'Submission failed. Please try again.'
+    showMessage.value = true
   }
 }
 </script>
@@ -150,6 +154,40 @@ const handleSubmit = async (auto = false) => {
         </div>
       </div>
     </nav>
+
+    <!-- Message Notification -->
+    <div v-if="showMessage" class="fixed top-20 right-4 z-50">
+      <div class="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden w-80">
+        <div class="p-4 flex items-start">
+          <div class="flex-shrink-0">
+            <svg v-if="submitMessage.includes('✅') || submitMessage.includes('success')" 
+                 xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <svg v-else-if="submitMessage.includes('⏰')" 
+                 xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <svg v-else 
+                 xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <div class="ml-3 flex-1 pt-0.5">
+            <p class="text-sm font-medium text-gray-900">
+              {{ submitMessage }}
+            </p>
+          </div>
+          <div class="ml-4 flex-shrink-0 flex">
+            <button @click="showMessage = false" class="inline-flex text-gray-400 hover:text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div class="max-w-4xl mx-auto px-4 sm:px-6 py-8">
       <!-- Loading/Error States -->
@@ -257,9 +295,17 @@ const handleSubmit = async (auto = false) => {
             </div>
           </div>
 
-          <p class="mt-6 text-lg font-medium" :class="submitMessage.includes('Time out') ? 'text-red-600' : 'text-green-600'">
-            {{ submitMessage }}
-          </p>
+          <div class="mt-6">
+            <button 
+              @click="router.go(0)"
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Retake Test
+            </button>
+          </div>
         </div>
       </div>
     </div>

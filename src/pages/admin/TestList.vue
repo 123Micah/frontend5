@@ -1,4 +1,5 @@
 <template>
+  <AdminNavbar />
   <div class="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
     <div class="text-center mb-10">
       <h1 class="text-3xl font-bold  bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent inline-block">
@@ -101,6 +102,7 @@
 import { ref, onMounted } from 'vue';
 import { RouterLink } from 'vue-router';
 import API from '../../services/api';
+import AdminNavbar from '../../components/AdminNavbar.vue';
 
 const tests = ref([]);
 

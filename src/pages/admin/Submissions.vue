@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import API from '../../services/api';
+import AdminNavbar from '../../components/AdminNavbar.vue';
 
 const submissions = ref([]);
 const isLoading = ref(true);
@@ -67,6 +68,7 @@ onMounted(fetchSubmissions);
 </script>
 
 <template>
+  <AdminNavbar />
   <main class="bg-gray-50 min-h-screen py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header -->
