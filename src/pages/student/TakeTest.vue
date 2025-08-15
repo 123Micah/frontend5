@@ -14,6 +14,7 @@ const loading = ref(true)
 const timeLeft = ref(null)
 const correctAnswers = ref([])
 const showMessage = ref(false)
+const incorrectCount = computed(() => test.value ? test.value.questions.length - correctCount.value : 0)
 let timerInterval = null
 
 const formattedTime = computed(() => {
@@ -50,9 +51,9 @@ function optionClass(qIdx, option) {
     ? correctAnswers.value[qIdx] === option
     : (test.value?.questions[qIdx]?.correctOption === option)
   
-  if (isSelected && isCorrect) return 'border-green-500 bg-green-50'
-  if (isSelected && !isCorrect) return 'border-red-500 bg-red-50'
-  if (!isSelected && isCorrect) return 'border-green-200'
+  if (isSelected && isCorrect) return 'border-green-500 bg-green-50 text-green-700'
+  if (isSelected && !isCorrect) return 'border-red-500 bg-red-50 text-red-700'
+  if (!isSelected && isCorrect) return 'border-green-200 bg-green-50'
   return ''
 }
 
@@ -115,8 +116,8 @@ const handleSubmit = async (auto = false) => {
     }
     
     submitMessage.value = auto 
-      ? '⏰ Time out! Your test was submitted automatically.'
-      : '✅ Submitted successfully! Your results are ready.'
+      ? '✅ Submitted successfully! Your results are ready.'
+      : ' ⏰ Time out! Your test was submitted automatically.'
     showMessage.value = true
   } catch (err) {
     console.error('Submission failed:', err)
@@ -156,34 +157,46 @@ const handleSubmit = async (auto = false) => {
     </nav>
 
     <!-- Message Notification -->
-    <div v-if="showMessage" class="fixed top-20 right-4 z-50">
-      <div class="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden w-80">
-        <div class="p-4 flex items-start">
-          <div class="flex-shrink-0">
-            <svg v-if="submitMessage.includes('✅') || submitMessage.includes('success')" 
-                 xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-            <svg v-else-if="submitMessage.includes('⏰')" 
-                 xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <svg v-else 
-                 xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          </div>
-          <div class="ml-3 flex-1 pt-0.5">
-            <p class="text-sm font-medium text-gray-900">
-              {{ submitMessage }}
-            </p>
-          </div>
-          <div class="ml-4 flex-shrink-0 flex">
-            <button @click="showMessage = false" class="inline-flex text-gray-400 hover:text-gray-500">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+    <div v-if="showMessage" class="fixed top-20 right-4 z-50 animate-fade-in">
+      <div class="bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden w-96 transform transition-all duration-300">
+        <div class="p-6">
+          <div class="flex items-start">
+            <div class="flex-shrink-0">
+              <svg v-if="submitMessage.includes('✅') || submitMessage.includes('success')" 
+                  xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
               </svg>
-            </button>
+              <svg v-else-if="submitMessage.includes('⏰')" 
+                  xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <svg v-else 
+                  xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <div class="ml-4 flex-1">
+              <h3 class="text-lg font-medium text-gray-900 mb-2">
+                {{ submitMessage }}
+              </h3>
+              <div class="flex space-x-4 mt-3">
+                <div class="flex-1 bg-green-50 rounded-lg p-3 text-center">
+                  <div class="text-sm font-medium text-green-700">Correct</div>
+                  <div class="text-2xl font-bold text-green-800">{{ correctCount }}</div>
+                </div>
+                <div class="flex-1 bg-red-50 rounded-lg p-3 text-center">
+                  <div class="text-sm font-medium text-red-700">Incorrect</div>
+                  <div class="text-2xl font-bold text-red-800">{{ incorrectCount }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="ml-4 flex-shrink-0 flex">
+              <button @click="showMessage = false" class="inline-flex text-gray-400 hover:text-gray-500 focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -212,10 +225,21 @@ const handleSubmit = async (auto = false) => {
           v-for="(question, index) in test.questions"
           :key="question._id"
           class="bg-white rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-100 overflow-hidden"
+          :class="{
+            'border-green-200': score !== null && answers[index] === correctAnswers[index],
+            'border-red-200': score !== null && answers[index] !== correctAnswers[index] && answers[index] !== null
+          }"
         >
           <div class="p-6 sm:p-8">
             <div class="flex items-start space-x-4">
-              <div class="bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-800 rounded-full w-10 h-10 flex items-center justify-center font-bold flex-shrink-0">
+              <div 
+                class="rounded-full w-10 h-10 flex items-center justify-center font-bold flex-shrink-0"
+                :class="{
+                  'bg-green-100 text-green-800': score !== null && answers[index] === correctAnswers[index],
+                  'bg-red-100 text-red-800': score !== null && answers[index] !== correctAnswers[index] && answers[index] !== null,
+                  'bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-800': score === null
+                }"
+              >
                 {{ index + 1 }}
               </div>
               <div class="flex-1">
@@ -232,7 +256,7 @@ const handleSubmit = async (auto = false) => {
                   <label
                     v-for="(option, i) in question.options"
                     :key="i"
-                    class="flex items-center space-x-4 p-4 rounded-lg border border-gray-200 transition-all cursor-pointer group"
+                    class="flex items-center space-x-4 p-4 rounded-lg border transition-all cursor-pointer group"
                     :class="optionClass(index, option)"
                   >
                     <div class="flex items-center h-5">
@@ -241,12 +265,27 @@ const handleSubmit = async (auto = false) => {
                         :name="'question_' + index"
                         :value="option"
                         v-model="answers[index]"
-                        class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300"
+                        class="h-5 w-5 focus:ring-2 focus:ring-offset-2 border-gray-300"
+                        :class="{
+                          'text-green-600 focus:ring-green-500': score !== null && correctAnswers[index] === option,
+                          'text-red-600 focus:ring-red-500': score !== null && answers[index] === option && answers[index] !== correctAnswers[index],
+                          'text-blue-600 focus:ring-blue-500': score === null
+                        }"
                         required
                         :disabled="score !== null"
                       />
                     </div>
-                    <span class="text-gray-700 group-hover:text-gray-900">{{ option }}</span>
+                    <span class="flex-1">{{ option }}</span>
+                    <span v-if="score !== null && correctAnswers[index] === option" class="text-green-600">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </span>
+                    <span v-else-if="score !== null && answers[index] === option && answers[index] !== correctAnswers[index]" class="text-red-600">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </span>
                   </label>
                 </div>
               </div>
@@ -256,9 +295,9 @@ const handleSubmit = async (auto = false) => {
 
         <div class="flex justify-center mt-10" v-if="score === null">
           <button
-            class="relative group flex items-center space-x-3 bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-4 rounded-lg hover:from-green-600 hover:to-blue-600 transition-all shadow-md hover:shadow-lg"
+            class="relative group flex items-center space-x-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
           >
-            <div class="absolute -inset-1 bg-gradient-to-r from-green-400 to-blue-400 rounded-lg blur opacity-0 group-hover:opacity-75 transition duration-200"></div>
+            <div class="absolute -inset-1 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg blur opacity-0 group-hover:opacity-75 transition duration-200"></div>
             <span class="relative flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -270,8 +309,8 @@ const handleSubmit = async (auto = false) => {
       </form>
 
       <!-- Results Section -->
-      <div v-if="score !== null" class="mt-10 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl shadow-sm p-8 border border-green-100">
-        <div class="text-center space-y-4">
+      <div v-if="score !== null" class="mt-10 bg-white rounded-xl shadow-lg p-8 border border-gray-100">
+        <div class="text-center space-y-6">
           <div class="inline-flex items-center justify-center bg-gradient-to-br from-green-100 to-blue-100 text-green-800 rounded-full p-4 mb-4 shadow-inner">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -284,23 +323,25 @@ const handleSubmit = async (auto = false) => {
             Your Score: {{ score }}/{{ test.questions.length }}
           </div>
           
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md mx-auto mt-6">
-            <div class="bg-white p-4 rounded-lg border border-green-100 shadow-sm">
-              <div class="text-green-600 font-medium">✅ Correct</div>
-              <div class="text-2xl font-bold text-gray-800">{{ correctCount }}</div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-md mx-auto mt-6">
+            <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border border-green-200 shadow-sm">
+              <div class="text-green-600 font-medium text-lg">✅ Correct Answers</div>
+              <div class="text-4xl font-bold text-gray-800 mt-2">{{ correctCount }}</div>
+              <div class="text-sm text-green-700 mt-1">{{ Math.round((correctCount / test.questions.length) * 100) }}% correct</div>
             </div>
-            <div class="bg-white p-4 rounded-lg border border-red-100 shadow-sm">
-              <div class="text-red-600 font-medium">❌ Incorrect</div>
-              <div class="text-2xl font-bold text-gray-800">{{ test.questions.length - correctCount }}</div>
+            <div class="bg-gradient-to-br from-red-50 to-red-100 p-6 rounded-xl border border-red-200 shadow-sm">
+              <div class="text-red-600 font-medium text-lg">❌ Incorrect Answers</div>
+              <div class="text-4xl font-bold text-gray-800 mt-2">{{ incorrectCount }}</div>
+              <div class="text-sm text-red-700 mt-1">{{ Math.round((incorrectCount / test.questions.length) * 100) }}% incorrect</div>
             </div>
           </div>
 
-          <div class="mt-6">
+          <div class="mt-8">
             <button 
               @click="router.go(0)"
-              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
               Retake Test
@@ -311,3 +352,20 @@ const handleSubmit = async (auto = false) => {
     </div>
   </div>
 </template>
+
+<style>
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>
