@@ -13,5 +13,7 @@ import Navbar from './components/Navbar.vue';
 import AdminNavbar from './components/AdminNavbar.vue';
 
 const route = useRoute();
-const isAdminRoute = computed(() => route.path.startsWith('/admin'));
+const isAdminRoute = computed(() =>
+  route.path.startsWith('/admin') && route.path !== '/admin/login'
+);
 </script>
