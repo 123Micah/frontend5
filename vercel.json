@@ -3,10 +3,7 @@
   "installCommand": "pnpm install",
   "outputDirectory": "artifacts/web/dist/public",
   "framework": "vite",
-  "regions": ["iad1"]
-}
-
-{
+  "regions": ["iad1"],
   "rewrites": [
     {
       "source": "/(.*)",
