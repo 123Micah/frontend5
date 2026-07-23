@@ -67,18 +67,9 @@
         </form>
       </div>
 
-      <!-- Footer with Registration Link -->
-      <div class="bg-gray-50 px-8 py-4 border-t border-gray-200">
-        <p class="text-sm text-gray-600 text-center mb-3">For authorized personnel only</p>
-        <div class="border-t border-gray-200 pt-4">
-          <p class="text-center text-sm text-gray-600 mb-2">Don't have an account?</p>
-          <router-link 
-            to="/admin/register" 
-            class="block w-full text-center px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-all text-sm font-medium border border-purple-300"
-          >
-            Create Admin Account (Temporary)
-          </router-link>
-        </div>
+      <!-- Footer Note -->
+      <div class="bg-gray-50 px-8 py-4 text-center border-t border-gray-200">
+        <p class="text-sm text-gray-500">For authorized personnel only</p>
       </div>
     </div>
   </div>
