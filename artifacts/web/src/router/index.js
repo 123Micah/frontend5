@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 // Views
 import Home from '../pages/Home.vue';
 import AdminLogin from '../pages/admin/Login.vue';
+import AdminRegister from '../pages/admin/Register.vue';
 import AdminDashboard from '../pages/admin/Dashboard.vue';
 import CreateTest from '../pages/admin/CreateTest.vue';
 import Testlist from '../pages/admin/TestList.vue';
@@ -21,6 +22,7 @@ const routes = [
 
   // Admin
   { path: '/admin/login', name: 'AdminLogin', component: AdminLogin },
+  { path: '/admin/register', name: 'AdminRegister', component: AdminRegister },
   { path: '/admin/dashboard', name: 'AdminDashboard', component: AdminDashboard },
   { path: '/admin/create-test', name: 'CreateTest', component: CreateTest },
   { path: '/admin/tests', name: 'Testlist', component: Testlist, props: true },
@@ -45,13 +47,12 @@ router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token');
   const role = localStorage.getItem('role');
 
- 
+  
   if (to.name === 'StudentRegister') {
     return next();
   }
 
   
-
 
  
 
