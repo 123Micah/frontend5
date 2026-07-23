@@ -49,7 +49,7 @@
           <button
             type="submit"
             :disabled="loading"
-            class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center"
+            class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-lg hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-400 transition-all shadow-md hover:shadow-lg flex items-center justify-center"
           >
             <svg v-if="loading" xmlns="http://www.w3.org/2000/svg" class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -67,9 +67,18 @@
         </form>
       </div>
 
-      <!-- Footer Note -->
-      <div class="bg-gray-50 px-8 py-4 text-center border-t border-gray-200">
-        <p class="text-sm text-gray-500">For authorized personnel only</p>
+      <!-- Footer with Registration Link -->
+      <div class="bg-gray-50 px-8 py-4 border-t border-gray-200">
+        <p class="text-sm text-gray-600 text-center mb-3">For authorized personnel only</p>
+        <div class="border-t border-gray-200 pt-4">
+          <p class="text-center text-sm text-gray-600 mb-2">Don't have an account?</p>
+          <router-link 
+            to="/admin/register" 
+            class="block w-full text-center px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-all text-sm font-medium border border-purple-300"
+          >
+            Create Admin Account (Temporary)
+          </router-link>
+        </div>
       </div>
     </div>
   </div>
@@ -98,8 +107,9 @@ const handleLogin = async () => {
     
     if (res.data?.token) {
       localStorage.setItem('token', res.data.token);
+      localStorage.setItem('role', 'admin');
       localStorage.setItem('user', JSON.stringify(res.data));
-      router.push('/admin/dashboard');
+      router.push('/admin/portal');
     }
   } catch (err) {
     error.value = err.response?.data?.message || 'Login failed. Please check your credentials.';
