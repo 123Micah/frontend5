@@ -38,6 +38,10 @@ function startTimer(durationSec) {
   }, 1000)
 }
 
+function normalize(val) {
+  return val !== undefined && val !== null ? String(val).trim().toLowerCase() : ''
+}
+
 function optionClass(qIdx, option) {
   if (score.value === null) {
     return {
@@ -46,20 +50,47 @@ function optionClass(qIdx, option) {
     }
   }
 
-  const selected = answers.value[qIdx]?.toString().trim()
-  const opt = option?.toString().trim()
+  const selected = normalize(answers.value[qIdx])
+  const opt = normalize(option)
   
-  const correctOpt = correctAnswers.value.length > 0
-    ? correctAnswers.value[qIdx]?.toString().trim()
-    : test.value?.questions[qIdx]?.correctOption?.toString().trim()
+  // Find correct option from backend response or initial question data
+  let correctOpt = ''
+  if (correctAnswers.value && correctAnswers.value[qIdx] !== undefined) {
+    correctOpt = normalize(correctAnswers.value[qIdx])
+  } else if (test.value?.questions[qIdx]?.correctOption) {
+    correctOpt = normalize(test.value.questions[qIdx].correctOption)
+  }
 
-  const isSelected = selected === opt
-  const isCorrect = correctOpt === opt
+  const isSelected = selected === opt && selected !== ''
+  
+  // If correct answers weren't returned by API, infer from full score
+  const hasCorrectAnswerData = correctOpt !== ''
+  const isCorrect = hasCorrectAnswerData 
+    ? correctOpt === opt 
+    : (isSelected && correctCount.value === test.value?.questions.length)
 
   if (isSelected && isCorrect) return 'border-green-500 bg-green-50 text-green-700'
   if (isSelected && !isCorrect) return 'border-red-500 bg-red-50 text-red-700'
-  if (!isSelected && isCorrect) return 'border-green-200 bg-green-50'
+  if (!isSelected && isCorrect) return 'border-green-200 bg-green-50 text-green-700'
   return ''
+}
+
+function isOptionCorrect(qIdx, option) {
+  if (score.value === null) return false
+  const opt = normalize(option)
+  
+  let correctOpt = ''
+  if (correctAnswers.value && correctAnswers.value[qIdx] !== undefined) {
+    correctOpt = normalize(correctAnswers.value[qIdx])
+  } else if (test.value?.questions[qIdx]?.correctOption) {
+    correctOpt = normalize(test.value.questions[qIdx].correctOption)
+  }
+  
+  if (correctOpt !== '') return correctOpt === opt
+  
+  // Fallback if correct answer list wasn't provided
+  const selected = normalize(answers.value[qIdx])
+  return selected === opt && correctCount.value === test.value?.questions.length
 }
 
 onMounted(async () => {
@@ -70,7 +101,7 @@ onMounted(async () => {
     // Initialize answers array
     answers.value = Array(data.questions?.length || 0).fill(null)
     
-    // Initialize correct answers if available
+    // Initialize correct answers if available in initial payload
     if (data.questions?.every(q => q.correctOption)) {
       correctAnswers.value = data.questions.map(q => q.correctOption)
     }
@@ -109,12 +140,14 @@ const handleSubmit = async (auto = false) => {
     
     const { data } = await API.post('/student/tests/submit', payload)
     
-    // Set score and fallback to data.score if data.correctCount is not returned by the backend
     score.value = data.score ?? 0
     correctCount.value = data.correctCount ?? data.score ?? 0
     
+    // Store correct answers if returned by API (e.g. data.correctAnswers or data.results)
     if (data.correctAnswers) {
       correctAnswers.value = data.correctAnswers
+    } else if (data.results && Array.isArray(data.results)) {
+      correctAnswers.value = data.results.map(r => r.correctOption)
     }
     
     if (timerInterval) {
@@ -233,8 +266,8 @@ const handleSubmit = async (auto = false) => {
           :key="question._id"
           class="bg-white rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-100 overflow-hidden"
           :class="{
-            'border-green-200': score !== null && answers[index] === correctAnswers[index],
-            'border-red-200': score !== null && answers[index] !== correctAnswers[index] && answers[index] !== null
+            'border-green-200': score !== null && isOptionCorrect(index, answers[index]),
+            'border-red-200': score !== null && !isOptionCorrect(index, answers[index]) && answers[index] !== null
           }"
         >
           <div class="p-6 sm:p-8">
@@ -242,8 +275,8 @@ const handleSubmit = async (auto = false) => {
               <div 
                 class="rounded-full w-10 h-10 flex items-center justify-center font-bold flex-shrink-0"
                 :class="{
-                  'bg-green-100 text-green-800': score !== null && answers[index] === correctAnswers[index],
-                  'bg-red-100 text-red-800': score !== null && answers[index] !== correctAnswers[index] && answers[index] !== null,
+                  'bg-green-100 text-green-800': score !== null && isOptionCorrect(index, answers[index]),
+                  'bg-red-100 text-red-800': score !== null && !isOptionCorrect(index, answers[index]) && answers[index] !== null,
                   'bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-800': score === null
                 }"
               >
@@ -274,8 +307,8 @@ const handleSubmit = async (auto = false) => {
                         v-model="answers[index]"
                         class="h-5 w-5 focus:ring-2 focus:ring-offset-2 border-gray-300"
                         :class="{
-                          'text-green-600 focus:ring-green-500': score !== null && correctAnswers[index] === option,
-                          'text-red-600 focus:ring-red-500': score !== null && answers[index] === option && answers[index] !== correctAnswers[index],
+                          'text-green-600 focus:ring-green-500': score !== null && isOptionCorrect(index, option),
+                          'text-red-600 focus:ring-red-500': score !== null && answers[index] === option && !isOptionCorrect(index, option),
                           'text-blue-600 focus:ring-blue-500': score === null
                         }"
                         required
@@ -283,12 +316,12 @@ const handleSubmit = async (auto = false) => {
                       />
                     </div>
                     <span class="flex-1">{{ option }}</span>
-                    <span v-if="score !== null && correctAnswers[index] === option" class="text-green-600">
+                    <span v-if="score !== null && isOptionCorrect(index, option)" class="text-green-600">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                       </svg>
                     </span>
-                    <span v-else-if="score !== null && answers[index] === option && answers[index] !== correctAnswers[index]" class="text-red-600">
+                    <span v-else-if="score !== null && answers[index] === option && !isOptionCorrect(index, option)" class="text-red-600">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                       </svg>
