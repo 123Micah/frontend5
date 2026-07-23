@@ -45,12 +45,17 @@ function optionClass(qIdx, option) {
       'hover:shadow-sm': answers.value[qIdx] !== option
     }
   }
+
+  const selected = answers.value[qIdx]?.toString().trim()
+  const opt = option?.toString().trim()
   
-  const isSelected = answers.value[qIdx] === option
-  const isCorrect = correctAnswers.value.length > 0
-    ? correctAnswers.value[qIdx] === option
-    : (test.value?.questions[qIdx]?.correctOption === option)
-  
+  const correctOpt = correctAnswers.value.length > 0
+    ? correctAnswers.value[qIdx]?.toString().trim()
+    : test.value?.questions[qIdx]?.correctOption?.toString().trim()
+
+  const isSelected = selected === opt
+  const isCorrect = correctOpt === opt
+
   if (isSelected && isCorrect) return 'border-green-500 bg-green-50 text-green-700'
   if (isSelected && !isCorrect) return 'border-red-500 bg-red-50 text-red-700'
   if (!isSelected && isCorrect) return 'border-green-200 bg-green-50'
@@ -73,8 +78,8 @@ onMounted(async () => {
     // Start timer if duration exists
     if (data.duration) {
       const totalSec = (data.duration.hours || 0) * 3600 + 
-                      (data.duration.minutes || 0) * 60 + 
-                      (data.duration.seconds || 0)
+                       (data.duration.minutes || 0) * 60 + 
+                       (data.duration.seconds || 0)
       if (totalSec > 0) startTimer(totalSec)
     }
   } catch (err) {
@@ -103,8 +108,10 @@ const handleSubmit = async (auto = false) => {
     }
     
     const { data } = await API.post('/student/tests/submit', payload)
-    score.value = data.score
-    correctCount.value = data.correctCount || 0
+    
+    // Set score and fallback to data.score if data.correctCount is not returned by the backend
+    score.value = data.score ?? 0
+    correctCount.value = data.correctCount ?? data.score ?? 0
     
     if (data.correctAnswers) {
       correctAnswers.value = data.correctAnswers
@@ -116,8 +123,8 @@ const handleSubmit = async (auto = false) => {
     }
     
     submitMessage.value = auto 
-      ? '✅ Submitted successfully! Your results are ready.'
-      : ' ⏰ Time out! Your test was submitted automatically.'
+      ? '⏰ Time out! Your test was submitted automatically.'
+      : '✅ Submitted successfully! Your results are ready.'
     showMessage.value = true
   } catch (err) {
     console.error('Submission failed:', err)
