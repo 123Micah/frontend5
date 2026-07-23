@@ -1,0 +1,7 @@
+{
+  "buildCommand": "pnpm run build",
+  "installCommand": "pnpm install",
+  "outputDirectory": "artifacts/web/dist/public",
+  "framework": "vite",
+  "regions": ["iad1"]
+}
